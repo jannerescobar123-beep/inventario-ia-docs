@@ -86,8 +86,8 @@ y PyMEs. Estado: `- [ ]` pendiente · `- [x]` completado. Actualizar al cerrar c
 | Grupo | Estado en prototipo |
 |---|---|
 | A (datos) | RF-01, RF-04, RF-07 ✔ · importación de hoja "productos" (stock/costos, ADR-003) ✔ |
-| B (análisis) | RF-09 parcial (KPIs básicos) |
-| C/D (predicción y compra) | Contrato de API listo, implementación semana 2 |
-| E (alertas) | Contrato listo, implementación semana 2 |
+| B (análisis) | RF-09 parcial (KPIs) · **RF-11, RF-12, RF-13, RF-17 ✔ motor de rotación** |
+| C/D (predicción y compra) | **RF-18, RF-19, RF-20, RF-22, RF-24, RF-25, RF-26 ✔** (modelo simple explicable; ARIMA post-prototipo) |
+| E (alertas) | **RF-12, RF-28, RF-29 ✔** regeneración automática en GET /api/alertas |
 | F (IA local) | Chat básico con Ollama ✔, function calling semana 3 |
 | G/H (optimización y NFR) | Posterior al prototipo |
