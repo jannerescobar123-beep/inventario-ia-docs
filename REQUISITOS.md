@@ -85,7 +85,7 @@ y PyMEs. Estado: `- [ ]` pendiente · `- [x]` completado. Actualizar al cerrar c
 
 | Grupo | Estado en prototipo |
 |---|---|
-| A (datos) | RF-01, RF-04, RF-07 ✔ esqueleto inicial |
+| A (datos) | RF-01, RF-04, RF-07 ✔ · importación de hoja "productos" (stock/costos, ADR-003) ✔ |
 | B (análisis) | RF-09 parcial (KPIs básicos) |
 | C/D (predicción y compra) | Contrato de API listo, implementación semana 2 |
 | E (alertas) | Contrato listo, implementación semana 2 |
