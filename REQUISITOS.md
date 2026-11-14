@@ -23,7 +23,7 @@ y PyMEs. Estado: `- [ ]` pendiente · `- [x]` completado. Actualizar al cerrar c
 - [x] **RF-11** — Debe calcular la rotación de inventario por producto.
 - [x] **RF-12** — Debe identificar productos de baja rotación y productos "muertos" (sin ventas en N días configurable).
 - [x] **RF-13** — Debe calcular los días de cobertura de inventario restantes por producto.
-- [ ] **RF-14** — Debe detectar estacionalidad por producto.
+- [x] **RF-14** — Debe detectar estacionalidad por producto.
 - [x] **RF-15** — Debe clasificar los productos mediante análisis ABC.
 - [ ] **RF-16** — Debe permitir comparar períodos (semana vs. semana anterior, mes vs. mismo mes del año anterior).
 - [x] **RF-17** — Debe calcular el capital inmovilizado por producto y por categoría.
@@ -104,10 +104,11 @@ y PyMEs. Estado: `- [ ]` pendiente · `- [x]` completado. Actualizar al cerrar c
 | RF-04 | Validación de cantidad/precio/columnas; reporte de errores en la respuesta y en la UI |
 | RF-07 | Productos creados desde la hoja `productos` y desde las ventas; catálogo editable pendiente |
 | RF-09 | `GET /api/kpis` → ventas totales, ticket promedio, unidades, margen, top productos |
-| RF-11, RF-12, RF-13 | `GET /api/rotacion` → índice de rotación, baja rotación, días de cobertura |
-| RF-15 | `clasificar_abc()` disponible en `backend/api/estadisticas.py` |
-| RF-17 | `capital_inmovilizado_por_producto()` disponible en `backend/api/estadisticas.py` |
-| RF-18, RF-19, RF-20 | `predecir_demanda_media_movil()` y `predecir_demanda_holt_winters()` (ARIMA post-prototipo) |
+| RF-11, RF-12, RF-13 | `GET /api/rotacion` → índice de rotación (ventana 30 días), baja rotación, días de cobertura = stock / venta diaria |
+| RF-14 | `GET /api/estacionalidad[?producto=]` → patrón y promedios mensuales (ADR-004) |
+| RF-15 | `GET /api/abc` → clases A/B/C por valor de inventario (ADR-004) |
+| RF-17 | `GET /api/capital` → capital inmovilizado total y por producto (ADR-004) |
+| RF-18, RF-19, RF-20 | `GET /api/predicciones/{id}` → media móvil 7/14/30 días; `predecir_demanda_holt_winters()` (ARIMA post-prototipo) |
 | RF-22 a RF-26 | `generar_recomendaciones_compra()` → cantidades, fecha sugerida, punto de reorden, urgencia |
 | RF-28, RF-29 | `GET /api/alertas` → riesgo de agotamiento + detección de picos/caídas |
 | RF-31 | Panel de alertas con regeneración automática cada 5 minutos |
@@ -118,7 +119,7 @@ y PyMEs. Estado: `- [ ]` pendiente · `- [x]` completado. Actualizar al cerrar c
 
 - RF-02 / RF-03: asistente de mapeo de columnas y plantillas guardadas (el mapeo manual actual no persiste)
 - RF-05 / RF-06: deduplicación incremental y reversión de importaciones
-- RF-10 / RF-14 / RF-16: tendencias por periodo, estacionalidad visible y comparación de períodos
+- RF-10 / RF-16: tendencias por periodo y comparación de períodos (RF-14 ya está expuesta en `GET /api/estacionalidad`)
 - RF-21, RF-27, RF-30, RF-32, RF-41 a RF-44: edición manual, órdenes imprimibles, umbrales configurables, resumen automático, filtros
 - RNF-47 / RNF-48: medidos en v0.2 (10.000 filas en 6,5 s; chat en 8,2 s con el modelo cargado)
 
@@ -236,3 +237,38 @@ El modelo se configura con la variable de entorno `OLLAMA_MODEL` (por defecto `q
 - El resto de pendientes de v0.2 (RF-02/03, RF-10/14/16, RF-21/27/30/32, RF-41 a RF-44, RF-49/50)
 
 
+
+---
+
+## Registro de avance — Sincronización contrato/código v0.3.1 (2026-11-12)
+
+### Cambios de esta iteración (ADR-004)
+
+| Área | Cambio | Evidencia |
+|---|---|---|
+| Contrato | `docs/openapi.yaml` reescrito (v0.3.0) con las 13 rutas reales de `backend/api/main.py`; eliminadas `POST /api/productos`, `/api/analisis/rotacion` y `/api/recomendaciones/compra` (no existían) | YAML parsea; las 13 rutas coinciden con `openapi.json` del servidor |
+| Backend | Nuevos endpoints: `GET /api/predicciones/{id}` (RF-18/20), `GET /api/abc` (RF-15), `GET /api/capital` (RF-17), `GET /api/estacionalidad` (RF-14) | Verificados con curl: 200 con datos reales; 404 producto inexistente; 400 sin histórico |
+| Backend | Corregida la rotación (RF-11): la ventana de 30 días se calculaba con el total histórico | `GET /api/rotacion` → `total_vendido_30d` acotado a la ventana anclada en la última venta |
+| Backend | Corregida la cobertura (RF-13): la fórmula multiplicaba ×30 en vez de dividir por la venta diaria (inflaba ~30×) | `dias_cobertura = stock / venta_diaria_media`; ejemplo: 16,3 días en vez de 489 |
+| Backend | Corregidas las queries de predicción: comentarios `#` no soportados por SQLite (500) y `UPPER(nombre)` sin normalizar (400 falsos) | Barrido de los 11 productos: 10×200 y 1×400 legítimo (0 días de ventas) |
+| Backend | Modelo local `qwen3:1.7b` descargado en Ollama (1,4 GB); `docker-compose.yml` actualiza `OLLAMA_MODEL` de `llama3.2:3b` a `qwen3:1.7b` y el volumen a `/app/datos` | `ollama pull qwen3:1.7b` → success |
+| Backend | `backend/Dockerfile` corregido: el CMD apuntaba al paquete muerto `app.main:app` (borrado en v0.3); añadido `backend/.dockerignore` | Reescrito a `uvicorn main:app` desde `/app/api` (docker no disponible en esta máquina: no construido) |
+| Limpieza | Borrados `backend/app/` (v0.2), `frontend/src/api.js` y `frontend/src/pages/` (sin referencias) | Búsqueda de referencias previa = 0 consumidores |
+| Repositorio | `.gitignore`: `backend/datos/uploads/` y `datos/` (4,6 MB de subidas temporales) | `git status` ya no los lista como sin seguimiento |
+
+### Verificación final (misma iteración)
+
+| Comprobación | Resultado |
+|---|---|
+| Suite de pruebas | `backend/tests/test_smoke.py`: **20/20 en verde** (pytest + TestClient sobre BD temporal; añadido `backend/requirements-dev.txt`) |
+| Venv | `backend/.venv` regenerado (shebangs correctos; fastapi 0.162.0, pandas 3.1.1, pytest 9.2.0) |
+| Rutas | Barrido de las 13 rutas: 10×GET 200, `POST /api/importar` 400 sin body, `POST /api/chat` 200 |
+| Chat con IA local | `qwen3:1.7b` responde en español con datos reales (5,8 s con el modelo en RAM; 32 s en la primera carga) |
+| Chat: defecto corregido | El formato de compra se inyectaba aunque la herramienta no fuera `recomendaciones_compra` (respuesta con `M críticos` y fecha inventada); ahora el formato es condicional al contexto y la línea de resumen se rellena deterministamente con totales reales |
+| Frontend | `npm run build` → exit 0 (2,42 s) |
+
+### Pendiente para la siguiente iteración
+
+- Pruebas de extremo a extremo del chat con Ollama (hoy solo la ruta de respaldo está cubierta por tests)
+- Verificación del chat de punta a punta ampliada (más preguntas fuera del patrón de compra)
+- Commits de esta iteración (pendientes de aprobación del usuario)
