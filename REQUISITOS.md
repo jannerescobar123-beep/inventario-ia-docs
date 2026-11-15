@@ -70,7 +70,15 @@ y PyMEs. Estado: `- [ ]` pendiente · `- [x]` completado. Actualizar al cerrar c
 - [ ] **RF-43** — Debe gestionar proveedores con su tiempo de entrega (lead time) y usarlo en las recomendaciones.
 - [ ] **RF-44** — Debe permitir filtrar todo el análisis por categoría, proveedor y rango de fechas.
 
-## H. Requisitos no funcionales
+## H. Inteligencia colectiva — «Señales del Eje» (innovación)
+
+- [ ] **RF-51** — Debe exportar señales agregadas anónimas del negocio (top de productos, rotación y quiebres de stock de un periodo) a un archivo JSON intercambiable sin conexión.
+- [ ] **RF-52** — Debe importar señales JSON recibidas de otros comercios (feria, USB, repartidor) y almacenarlas como señales regionales.
+- [ ] **RF-53** — Debe cruzar el histórico local con las señales regionales en las predicciones, priorizando siempre los datos propios cuando difieran.
+- [ ] **RF-54** — Debe incluir un calendario configurable de eventos del Quindío (Festival Nacional del Café, Semana Santa, ferias, cosecha) usado como variable exógena en predicciones y recomendaciones.
+- [ ] **RF-55** — El asistente debe explicar en lenguaje sencillo cuándo una predicción se apoya en señales regionales o en un evento del calendario, citando las cifras (RF-37).
+
+## I. Requisitos no funcionales
 
 - [x] **RNF-45** — La aplicación debe funcionar 100% offline; ningún dato debe salir del equipo (privacidad total).
 - [x] **RNF-46** — Debe correr en hardware modesto (8 GB RAM, sin GPU obligatoria), con aceleración GPU opcional.
@@ -78,6 +86,8 @@ y PyMEs. Estado: `- [ ]` pendiente · `- [x]` completado. Actualizar al cerrar c
 - [x] **RNF-48** — El asistente de IA debe responder en menos de 10 segundos en equipos básicos.
 - [ ] **RNF-49** — Debe instalar con un solo instalador en Windows (deseablemente Linux), sin configuración técnica.
 - [ ] **RNF-50** — Debe incluir respaldo automático de la base de datos local y cifrado de la información almacenada.
+- [ ] **RNF-56** — El intercambio de señales debe ser 100% offline y sin costo: canales locales (archivo, USB, feria, mensajero), sin servidores ni suscripciones en la nube (política de anonimización definida en ADR-005).
+- [ ] **RNF-57** — Las señales exportadas deben ser anónimas y agregadas: sin nombres de negocio, clientes, proveedores ni identificadores de ningún tipo, con mínimo de N productos por señal para impedir reidentificación.
 
 ---
 
@@ -90,7 +100,8 @@ y PyMEs. Estado: `- [ ]` pendiente · `- [x]` completado. Actualizar al cerrar c
 | C/D (predicción y compra) | **RF-18, RF-19, RF-20, RF-22, RF-24, RF-25, RF-26 ✔** (modelo simple explicable; ARIMA post-prototipo) · pantalla «Qué comprar» ✔ |
 | E (alertas) | **RF-12, RF-28, RF-29 ✔** regeneración automática en GET /api/alertas |
 | F (IA local) | Chat básico con Ollama ✔, function calling semana 3 |
-| G/H (optimización y NFR) | Posterior al prototipo |
+| G (optimización) | Posterior al prototipo |
+| H/I (innovación y NFR) | «Señales del Eje» (RF-51 a RF-55, RNF-56/57) y NFR pendientes |
 
 ---
 
@@ -235,6 +246,7 @@ El modelo se configura con la variable de entorno `OLLAMA_MODEL` (por defecto `q
 - RF-05 / RF-06: deduplicación incremental y reversión de importaciones (reimportar el Excel de
   demo duplicaría las ventas)
 - El resto de pendientes de v0.2 (RF-02/03, RF-10/14/16, RF-21/27/30/32, RF-41 a RF-44, RF-49/50)
+- Innovación «Señales del Eje» (RF-51 a RF-55, RNF-56/57): ver registro al final de este documento
 
 
 
@@ -272,3 +284,47 @@ El modelo se configura con la variable de entorno `OLLAMA_MODEL` (por defecto `q
 - Pruebas de extremo a extremo del chat con Ollama (hoy solo la ruta de respaldo está cubierta por tests)
 - Verificación del chat de punta a punta ampliada (más preguntas fuera del patrón de compra)
 - Commits de esta iteración (pendientes de aprobación del usuario)
+
+---
+
+## Registro — Innovación «Señales del Eje» (2026-11-13)
+
+### Qué es
+
+Inteligencia colectiva federada sin nube: los comercios intercambian **señales
+agregadas y anónimas** (top de productos, rotación, quiebres de stock) por canales
+locales (feria, USB, mensajero, cero costo), y Ollama cruza esas señales
+regionales con los datos propios. El **calendario de eventos del Quindío**
+(Festival Nacional del Café, Semana Santa, ferias, cosecha) entra como variable
+exógena de predicción.
+
+### Cobertura: qué ya existía y qué se añadió
+
+| Elemento de la idea | Estado previo | Requisito |
+|---|---|---|
+| Estacionalidad como predictor | ✔ ya cubierto | RF-14, RF-19 |
+| Corrección manual ante eventos conocidos | ✔ ya cubierto (manual) | RF-21 |
+| Modelo local sin nube, hardware modesto | ✔ ya cubierto | RNF-45, RNF-46 |
+| Exportar señales anónimas agregadas (JSON) | ✘ nuevo | **RF-51** |
+| Importar señales de otros comercios | ✘ nuevo | **RF-52** |
+| Cruce señal regional ↔ datos locales en predicciones | ✘ nuevo | **RF-53** |
+| Calendario de eventos del Quindío como variable exógena | ✘ nuevo | **RF-54** |
+| Chat que explica el uso de señales/eventos | ✘ nuevo | **RF-55** |
+| Intercambio 100% offline, sin suscripciones | ✘ nuevo | **RNF-56** |
+| Anonimización y umbral anti-reidentificación | ✘ nuevo | **RNF-57** |
+
+### Dependencia de diseño
+
+- **ADR-005 (pendiente de redactar)** — canal de intercambio de señales y política
+  de anonimización: formato del JSON, campos permitidos/prohibidos, umbral mínimo
+  de productos por señal, y regla de precedencia local > regional.
+- Contrato: si RF-51/RF-52 se exponen como endpoints, requieren ampliar
+  `docs/openapi.yaml` (ADR-004) en una iteración posterior.
+
+### Estado
+
+- [x] Requisitos formalizados en este documento (secciones H e I)
+- [ ] ADR-005: canal y política de anonimización
+- [ ] Implementación de exportación/importación de señales (RF-51/52)
+- [ ] Motor de predicción con señal regional y calendario de eventos (RF-53/54)
+- [ ] Respuesta del asistente sobre uso de señales (RF-55)
