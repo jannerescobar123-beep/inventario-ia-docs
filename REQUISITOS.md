@@ -11,21 +11,21 @@ y PyMEs. Estado: `- [ ]` pendiente · `- [x]` completado. Actualizar al cerrar c
 - [ ] **RF-02** — Debe ofrecer un asistente de mapeo de columnas para identificar fecha, producto, cantidad, precio y categoría.
 - [ ] **RF-03** — Debe guardar plantillas de mapeo para repetir importaciones del mismo proveedor/POS sin reconfigurar.
 - [x] **RF-04** — Debe validar los datos importados (fechas inválidas, cantidades negativas, productos duplicados) y mostrar un reporte de errores claro.
-- [ ] **RF-05** — Debe permitir importaciones incrementales sin duplicar registros ya existentes.
+- [x] **RF-05** — Debe permitir importaciones incrementales sin duplicar registros ya existentes.
 - [ ] **RF-06** — Debe mantener un historial de importaciones con opción de revertir una carga errónea.
 - [x] **RF-07** — Debe permitir registrar y editar productos manualmente: nombre, SKU/código de barras, categoría, unidad, costo y precio de venta.
-- [ ] **RF-08** — Debe actualizar automáticamente el stock disponible a partir de las ventas importadas.
+- [ ] **RF-08** — Debe actualizar automáticamente el stock disponible a partir de las ventas importadas. · En espera de decisión: ADR-003 fija el stock físico en la hoja «productos» y no derivado de las ventas (ver «Registro de avance — Cierre de RF en la rama mi-mvp», 2026-11-20).
 
 ## B. Análisis de ventas
 
 - [x] **RF-09** — Debe mostrar un tablero con KPIs: ventas totales, ticket promedio, unidades vendidas, margen y top de productos.
-- [ ] **RF-10** — Debe analizar tendencias de venta por día, semana y mes.
+- [x] **RF-10** — Debe analizar tendencias de venta por día, semana y mes.
 - [x] **RF-11** — Debe calcular la rotación de inventario por producto.
 - [x] **RF-12** — Debe identificar productos de baja rotación y productos "muertos" (sin ventas en N días configurable).
 - [x] **RF-13** — Debe calcular los días de cobertura de inventario restantes por producto.
 - [x] **RF-14** — Debe detectar estacionalidad por producto.
 - [x] **RF-15** — Debe clasificar los productos mediante análisis ABC.
-- [ ] **RF-16** — Debe permitir comparar períodos (semana vs. semana anterior, mes vs. mismo mes del año anterior).
+- [x] **RF-16** — Debe permitir comparar períodos (semana vs. semana anterior, mes vs. mismo mes del año anterior).
 - [x] **RF-17** — Debe calcular el capital inmovilizado por producto y por categoría.
 
 ## C. Predicción de demanda
@@ -42,13 +42,13 @@ y PyMEs. Estado: `- [ ]` pendiente · `- [x]` completado. Actualizar al cerrar c
 - [x] **RF-24** — Debe indicar cuándo realizar cada compra (fecha sugerida según punto de reorden).
 - [x] **RF-25** — Debe calcular el punto de reorden automáticamente por producto.
 - [x] **RF-26** — Debe priorizar las recomendaciones por urgencia (crítico / medio / bajo).
-- [ ] **RF-27** — Debe generar órdenes de compra exportables o imprimibles.
+- [x] **RF-27** — Debe generar órdenes de compra exportables o imprimibles.
 
 ## E. Alertas inteligentes
 
 - [x] **RF-28** — Debe alertar sobre productos con riesgo de agotarse pronto.
 - [x] **RF-29** — Debe detectar comportamientos inusuales en ventas (picos o caídas anómalas) con detección estadística.
-- [ ] **RF-30** — Debe permitir configurar umbrales de alerta por producto o categoría.
+- [x] **RF-30** — Debe permitir configurar umbrales de alerta por producto o categoría. · Verificado en la API (ADR-006); la pantalla de configuración de umbrales todavía no existe.
 - [x] **RF-31** — Debe mostrar las alertas en un panel central y en el tablero principal.
 - [ ] **RF-32** — Debe enviar un resumen semanal automático del estado del negocio.
 
@@ -66,8 +66,8 @@ y PyMEs. Estado: `- [ ]` pendiente · `- [x]` completado. Actualizar al cerrar c
 ## G. Optimización de inventario
 
 - [ ] **RF-41** — Debe sugerir acciones para productos de baja rotación: liquidación, descuentos o no volver a comprarlos.
-- [ ] **RF-42** — Debe permitir definir stock mínimo y máximo por producto.
-- [ ] **RF-43** — Debe gestionar proveedores con su tiempo de entrega (lead time) y usarlo en las recomendaciones.
+- [x] **RF-42** — Debe permitir definir stock mínimo y máximo por producto. · Verificado en la API (ADR-006); el stock máximo se edita por API, sin pantalla de edición de producto.
+- [x] **RF-43** — Debe gestionar proveedores con su tiempo de entrega (lead time) y usarlo en las recomendaciones.
 - [ ] **RF-44** — Debe permitir filtrar todo el análisis por categoría, proveedor y rango de fechas.
 
 ## H. Inteligencia colectiva — «Señales del Eje» (innovación)
@@ -101,6 +101,9 @@ y PyMEs. Estado: `- [ ]` pendiente · `- [x]` completado. Actualizar al cerrar c
 | E (alertas) | **RF-12, RF-28, RF-29 ✔** regeneración automática en GET /api/alertas |
 | F (IA local) | Chat básico con Ollama ✔, function calling semana 3 |
 | G (optimización) | Posterior al prototipo |
+| G (optimización) · avance 2026-11-20 | RF-30, RF-42, RF-43 ✔ (umbrales de alerta, stock máximo y proveedores con lead time) |
+| B/E (análisis y alertas) · avance 2026-11-20 | RF-10, RF-16, RF-27 ✔ (tendencias, comparación de periodos y órdenes de compra) |
+| A (datos) · avance 2026-11-17 | RF-05 ✔ (importación incremental sin duplicados) |
 | H/I (innovación y NFR) | «Señales del Eje» (RF-51 a RF-55, RNF-56/57) y NFR pendientes |
 
 ---
@@ -328,3 +331,96 @@ exógena de predicción.
 - [ ] Implementación de exportación/importación de señales (RF-51/52)
 - [ ] Motor de predicción con señal regional y calendario de eventos (RF-53/54)
 - [ ] Respuesta del asistente sobre uso de señales (RF-55)
+
+---
+
+## Registro de avance — Cierre de RF en la rama `mi-mvp` (2026-11-16 → 2026-11-20)
+
+> **Dónde vive este trabajo.** En el repositorio de **código** `inventario-ia`, rama
+> `mi-mvp` (publicada en `origin/mi-mvp`). `main` queda intacta: es el trabajo del
+> equipo y no se toca. Los 6 commits de la serie son **aditivos**: en ninguno se
+> borra ni se reescribe un fichero del compañero (verificado con
+> `git diff --cached --diff-filter=D --name-only` antes de cada publicación:
+> **0 ficheros eliminados**).
+
+### Requisitos cerrados en esta serie
+
+| Requisito | Qué se implementó | Evidencia verificada |
+|---|---|---|
+| RF-05 | Importación incremental: el archivo se compara con la BD como **multiconjunto** (fecha + producto normalizado + cantidad + precio) y solo se inserta la diferencia | `backend/tests/test_rf05_rf07.py`: reimportar el mismo archivo = 0 nuevas; archivo parcial = solo lo nuevo; una venta distinta con la misma fecha no se confunde con duplicado. Commit `224b252` |
+| RF-10 | Serie de ventas por **día, semana ISO y mes**, con ventanas medidas en **periodos completos** (90 días / 26 semanas / 12 meses) | `GET /api/tendencias?granularidad=dia\|semana\|mes`; 28 tests en `backend/tests/test_rf10_rf16.py`; pantalla **«Tendencias»** (`/tendencias`). Commit `aab5718` |
+| RF-16 | Comparación semana vs. semana anterior, mes vs. mes anterior y mes vs. mismo mes del año anterior | `GET /api/comparacion`; sin base de comparación devuelve `disponible:false` + `motivo` (no un 0 % falso); el periodo en curso se marca `completo:false` **sin ajustar el dato**. Commit `aab5718` |
+| RF-27 | Órdenes de compra en JSON, CSV (**UTF-8 con BOM y `;`**) y HTML imprimible A4 | `GET /api/ordenes-compra`, `GET /api/ordenes-compra.csv`, `GET /api/ordenes-compra.html`; 17 tests en `backend/tests/test_rf27.py`; botones «Descargar CSV» e «Imprimir / PDF» en «Qué comprar». Commit `f350970` |
+| RF-30 | Umbrales de alerta por producto y por categoría, resueltos en cascada **producto → categoría → fábrica** | `GET /api/umbrales`, `PUT /api/umbrales/{categoria}`; 21 tests en `backend/tests/test_rf30_rf42.py`. Commit `a009c38` |
+| RF-42 | **Stock máximo** por producto: limita la reposición y genera la alerta de exceso con el capital inmovilizado | `stock_maximo` en el catálogo y en el motor de compra; tests de compatibilidad «sin configurar = comportamiento de siempre». Commit `a009c38` |
+| RF-43 | Proveedores con su **lead time real** (1–365 días), asignación por producto y orden de compra **agrupada por proveedor** | `GET/POST /api/proveedores`, `PUT/DELETE /api/proveedores/{id}`, `PUT /api/productos/{id}/proveedor`; pantalla **«Proveedores»** (`/proveedores`) y selector por fila en el catálogo; 22 tests en `backend/tests/test_rf43.py`. Commit `3cfd16f` |
+
+### Rutas nuevas del contrato API
+
+Todas añadidas en `docs/openapi.yaml` **por adición** (0 líneas eliminadas en cada
+paso). El detalle de las decisiones está en **ADR-006**.
+
+| Paso | Rutas nuevas |
+|---|---|
+| RF-05 / RF-07 | `POST /api/productos`, `PUT /api/productos/{producto_id}` |
+| RF-27 | `GET /api/ordenes-compra`, `GET /api/ordenes-compra.csv`, `GET /api/ordenes-compra.html` |
+| RF-30 | `GET /api/umbrales`, `PUT /api/umbrales/{categoria}` |
+| RF-10 / RF-16 | `GET /api/tendencias`, `GET /api/comparacion` |
+| RF-43 | `GET/POST /api/proveedores`, `PUT/DELETE /api/proveedores/{proveedor_id}`, `PUT /api/productos/{producto_id}/proveedor` |
+
+### Decisiones que quedan fijadas
+
+| Decisión | Por qué |
+|---|---|
+| El **lead time pertenece al proveedor**, no al producto | Corregir el plazo de un proveedor no debe obligar a tocar el catálogo |
+| Un producto **sin proveedor** (o con el proveedor dado de baja) usa el **global de 7 días** | Dar de baja un proveedor no puede romper el cálculo de las recomendaciones |
+| La **baja de proveedor es lógica** (`activo = 0`) y reversible con `PUT activo:true` | Conserva el historial y las asignaciones; se puede volver atrás sin rehacer el catálogo |
+| La orden de compra se **agrupa por proveedor** con subtotales, y `lineas` sigue plano y numerado | Cada proveedor es un pedido distinto, pero no se rompe lo que ya consumía el orden |
+| `PUT /api/proveedores/{id}` tiene semántica **PUT estricta**: `contacto` y `telefono` omitidos quedan en `null` | Es la semántica estándar de PUT; `activo` es la excepción (solo cambia si llega en el cuerpo) |
+| Las **semanas son ISO** (`date.isocalendar()`), no `strftime('%W')` de SQLite | `%W` inventa una «semana 00» y descoloca el año en los bordes de enero |
+| Las ventanas de tendencia se miden en **periodos**, no en días | Con 90 días el primer mes quedaba cortado y se perdía parte del histórico |
+| La comparación sin base devuelve `disponible:false` + `motivo` | Un 0 % parecería una caída real |
+| Las rutas del contrato se validan **en las dos direcciones** (contrato → app y app → contrato) | Antes solo se validaba una dirección y las rutas nuevas pasaban sin avisar |
+
+### Defectos detectados y corregidos en esta serie
+
+| Severidad | Defecto | Causa | Corrección |
+|---|---|---|---|
+| P1 | La ventana de tendencia por defecto se calculaba **en días** y el primer mes quedaba cortado | La ventana se expresaba en días, no en periodos | Ventanas en periodos completos + **2 tests de regresión verificados en rojo** revirtiendo el código |
+| P1 | `test_openapi_sincronizado_con_rutas` solo validaba **contrato → app** | El test no miraba las rutas reales de la app | Validación **bidireccional**; se comprobó que detecta el hueco quitando `/api/tendencias` del YAML |
+| P2 | La marca «Inventario-IA» se recortaba a «Inventa…» entre 1200 y 1440 px | La 7.ª entrada del menú («Proveedores») no cabía | Menú en línea de **1200 a 1280 px** + franja 1280–1439 px con más tightness; la marca se lee completa a 1250/1280/1300/1440 px |
+| P2 | Los títulos de las columnas numéricas salían a la izquierda sobre cifras a la derecha | `.data-table thead th { text-align:left }` ganaba a `.num` por especificidad | Regla `.data-table thead th.num { text-align:right }` |
+| P2 | La fila de un proveedor dado de baja no se atenuaba | `.fila-inactiva > td` perdía contra `.data-table tbody td` | `.data-table tbody tr.fila-inactiva > td` |
+| P3 | El chevron de los `<select>` **se repetía por toda la caja** encima del texto | `appearance:none` sin `background-repeat:no-repeat` ni `background-position` | `background-repeat/position/size` + `padding-right:2.6rem` en todos los `<select>` |
+| P3 | El anillo de foco de los campos daba **1,63:1** (por debajo del 3:1 de WCAG 2.4.11) | `box-shadow` compuesto con `rgba(...,.28)` | Anillo sólido `0 0 0 2px var(--accent)` → **3,58:1** contra `#1C222B` |
+
+### Verificación de la serie
+
+| Comprobación | Resultado |
+|---|---|
+| Suite de pruebas | **126/126 en verde** (120 funciones de test; 22 de RF-43, 28 de RF-10/16, 21 de RF-30/42, 17 de RF-27, 12 de RF-05/07, 20 de humo) |
+| Frontend | `npm run build` correcto (676 módulos) |
+| HTTP real | 25 comprobaciones sobre una **copia** de la BD: CRUD de proveedores, duplicado 409, asignación, lead time 21 en la recomendación, 8 líneas sin proveedor a 7 días, 2 grupos con subtotales en la orden, CSV/HTML con proveedor, baja → vuelta a 7 días, 409 al asignar un proveedor de baja, reactivación y 404. **0 fallos** |
+| Revisión visual | 3 ciclos con `ui-ux-design-director` (Chrome DevTools MCP) sobre el paso de RF-43: APTO CON OBSERVACIONES → APTO CON OBSERVACIONES → **APTO** |
+| Responsive | Verificado a 360 / 700 / 1024 / 1200 / 1280 / 1300 / 1440 px: sin desbordamiento horizontal de página |
+| Datos del usuario | La BD real `backend/datos/inventario.db` **no se ha tocado**: SHA-256 `5255532C…A7DBD` sin cambios desde el 11/16/2026. Toda prueba y toda revisión se hicieron sobre **copias** en `%TEMP%\opencode` |
+| Publicación | 6 commits en `origin/mi-mvp`; **0 ficheros eliminados**; `main` intacta |
+
+### Pendiente de esta serie
+
+- **Interfaz de RF-30 y RF-42**: la API está lista y verificada, pero no hay pantalla
+  para configurar umbrales ni editar el stock máximo (no existe pantalla de edición
+  de producto; el catálogo solo permite asignar proveedor).
+- **Aviso al compañero**: la regla 2 del proyecto pide avisar el mismo día de cada
+  cambio del contrato API. Queda **pendiente de aviso** (no hay canal de contacto
+  desde este repositorio).
+- **RF-44** (filtros por categoría, proveedor y rango de fechas) es el siguiente
+  paso previsto; no se ha iniciado.
+- **PDF impreso** de la orden de compra: se genera desde el navegador y **no se ha
+  verificado visualmente**.
+- **ADR-005** (canal de señales y política de anonimización de «Señales del Eje»)
+  sigue reservado y **sin redactar**; por eso RF-51 a RF-55 y RNF-56/57 no pueden
+  empezar.
+- **RF-08** sigue pendiente: choca con ADR-003 (el stock físico viene de la hoja
+  «productos», no de las ventas importadas) y necesita una decisión.
+

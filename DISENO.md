@@ -65,6 +65,7 @@
 
 - **Navbar superior** con marca, enlaces y badge de estado de la API ("API conectada"). En móvil se convierte en **menú de hamburguesa** con panel deslizante (`translate3d`), foco gestionado, cierre al navegar y con `Escape`.
 - **Rutas actuales (sin cambios):** `/` (Panel de control), `/importar`, `/alertas`, `/compras` (Qué comprar), `/chat`.
+  · **Estado 2026-11-20:** la lista vigente es `/` (Panel de control), `/tendencias`, `/importar`, `/alertas`, `/compras` (Qué comprar), `/proveedores`, `/chat`. Se añadieron `/tendencias` (RF-10/RF-16) y `/proveedores` (RF-43); la línea anterior se conserva como redacción original.
 - **Botón flotante de chatbot**: fijo abajo a la derecha, siempre visible. Al abrirlo:
   - escritorio → drawer lateral ancho;
   - móvil → hoja inferior (bottom sheet).
@@ -115,3 +116,59 @@
 | P3 (QA) | Aviso «Blocked aria-hidden on an element because its descendant retained focus» al navegar desde el menú | El foco seguía en el enlace del menú cuando se ocultaba con `aria-hidden` | Al pulsar un enlace del menú, el foco pasa a `<main tabIndex={-1}>` antes de cerrarlo. Corrección aplicada; re-verificación en navegador en curso |
 
 > Los estados se actualizan al cierre de la iteración con la evidencia real; no se marca nada como verificado sin comprobarlo.
+
+---
+
+## 10. Extensiones posteriores a la dirección aprobada (2026-11-09 → 2026-11-20)
+
+> Esta sección **añade** criterios que surgieron al construir las pantallas nuevas
+> («Tendencias» y «Proveedores»). No cambia ninguna decisión de las secciones 1 a 9:
+> las amplía con la evidencia de las iteraciones v0.3.1 → v0.4.
+
+### 10.1 Pantallas añadidas
+
+| Pantalla | Ruta | Requisito | Criterio visual |
+|---|---|---|---|
+| Tendencias | `/tendencias` | RF-10, RF-16 | Rejilla propia de 3 comparaciones (sin el hueco de 1/4 que dejaba la rejilla compartida de 4), gráfica Recharts y tabla de detalle |
+| Proveedores | `/proveedores` | RF-43 | Tarjeta de formulario + tabla; chips de estado «Activo» / «De baja»; baja con **confirmación en línea** (dos botones) y nota con los productos afectados |
+| Selector de proveedor | `/` (catálogo) | RF-43 | Una columna nueva con un `<select>` por fila; el nombre largo se recorta en la celda y el nombre completo queda en el `title` |
+
+### 10.2 Menú superior: 7 entradas
+
+- Con 6 entradas el menú en línea cabía desde 1200 px. Al añadir **«Proveedores»** (7.ª
+  entrada) la marca «Inventario-IA» se recortaba a «Inventa…» entre 1200 y 1440 px.
+- **Criterio vigente:** el menú en línea se muestra **desde 1280 px**; por debajo, menú
+  de hamburguesa (el criterio de las secciones 5 y 2 se mantiene: hamburguesa en móvil).
+- **Franja 1280–1439 px:** se aprieta el espacio interno de los enlaces (`gap .15rem`,
+  `padding-inline .7rem`) **sin bajar el tamaño del texto**, para que la marca se lea
+  completa. Desde 1440 px vuelve el espaciado normal.
+- Verificado a 1250 / 1280 / 1300 / 1440 px: 7 enlaces en línea, marca completa y sin
+  solaparse con el badge «API conectada».
+
+### 10.3 Tablas y formularios
+
+| Regla | Detalle |
+|---|---|
+| Alineación numérica | Los títulos de columna numérica van **a la derecha** (`.data-table thead th.num`), igual que las cifras; el `text-align:left` del encabezado no puede ganar por especificidad |
+| Estados de fila | Una fila **dada de baja** se atenúa con `--text-3` (`#8C9AAD`); la regla necesita más especificidad que el color de celda por defecto |
+| Botón de formulario | **Ancho completo** cuando ocupa una fila él solo (móvil y tramos sin sitio) y **tamaño del contenido** cuando comparte línea con los campos. La rejilla del formulario es explícita (1 col <620 px · 2 col 620–999 · 4 col 1000–1199 · 4+auto ≥1200) para que el punto de salto no dependa del ancho arbitrario de la tarjeta |
+| Avisos | La región `role="status"` permanece en el DOM (si no, no anuncia nada) pero **no reserva hueco** cuando está vacía (`.aviso:empty`) |
+| Estado vacío | Fuera de la `<table>`: dentro de una tabla de 640 px en un móvil de 360 px el texto se recortaba |
+
+### 10.4 Verificación de las iteraciones añadidas
+
+| Iteración | Validación | Estado | Evidencia |
+|---|---|---|---|
+| v0.3 (rediseño) | Técnica · Visual · Consola | **VERIFICADO** | `npm run build` exit 0 · fondo `#0B0F14`, `.page-title` 49,5 px vs `.kpi-value` 49,5 px · 0 errores, 0 avisos |
+| v0.3.1 (RF-10/RF-16) | Visual y responsive | **VERIFICADO** | 3 ciclos con `ui-ux-design-director`: importes con 2 decimales, `aria-label` legible, estado vacío fuera de la tabla, rejilla de 3 columnas, margen del gráfico 16 → 32 px; menú en línea de 768 a 1200 px |
+| v0.4 (RF-43) | Técnica · Visual · Responsive | **VERIFICADO_TECNICAMENTE** y **VERIFICADO_VISUALMENTE** | `npm run build` 676 módulos · 126/126 pruebas · 3 ciclos de revisión visual (APTO CON OBSERVACIONES → APTO CON OBSERVACIONES → **APTO**) · anchos 360/700/1024/1200/1280/1300/1440 px sin desbordamiento de página |
+
+### 10.5 Observación abierta
+
+- El **botón flotante de chat** se superpone sobre la esquina inferior derecha de las
+  tablas (puede tapar un valor al desplazarse). No se ha corregido: no pertenece a los
+  requisitos cerrados y requiere decidir si el FAB reserva espacio o se desplaza.
+- El **estado `:focus` de los `<select>`** no se ha ejercitado en ejecución en la
+  iteración v0.4 (abrir un desplegable nativo puede escribir datos en el catálogo); el
+  anillo de foco compartido está verificado solo en los campos de texto.
+
